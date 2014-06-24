@@ -1,7 +1,10 @@
 simpath
 =======
 
-In silico framework for modeling functional genomic experiments in a cellular pathway context
+
+
+Framework for in silico modeling of functional genomic experiments in a cellular pathway context.
+
 
 
 The tar.gz file contains the R package. 
