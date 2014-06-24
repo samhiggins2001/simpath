@@ -1,0 +1,4 @@
+^\.travis\.yml$
+^.*\.Rproj$
+^\.Rproj\.user$
+packageDir_0.1.tar.gz
