@@ -18,22 +18,22 @@ loadBasicArms<-function(STUDY){
 	cat("\nLoading basic arms...\n")
 	arms = loadDataArm(description="Load drug screen data",
 										 title="functional_drug_screen_summary", 
-										 mainFunction=RunDrugScreen, 
+										 mainFunction=packageDir:::RunDrugScreen, 
 										 arms=arms)
 	
 	arms = loadDataArm(description="Load somatic mutation data",
 										 title="somatic_mutation_aberration_summary", 
-										 mainFunction=runSomaticMutationsProcessing, 
+										 mainFunction=packageDir:::runSomaticMutationsProcessing, 
 										 arms=arms)
 	
 	arms = loadDataArm(description="Load abitrary set of genes for path enrichment",
 										 title="arbitrary_gene_data_input", 
-										 mainFunction=RunGenericEnrichment, 
+										 mainFunction=packageDir:::RunGenericEnrichment, 
 										 arms=arms)
 	
 	arms = loadDataArm(description="Run overlap analysis",
 										 title="overlap_analysis", 
-										 mainFunction=RunOverlapAnalysis, 
+										 mainFunction=packageDir:::RunOverlapAnalysis, 
 										 arms=arms)
 	
 	STUDY@arms = arms
@@ -46,7 +46,11 @@ loadBasicArms<-function(STUDY){
 #'@description Main function for interactive usage of package. Provides menu-based access for nearly all program functionality.
 #'@param additionalArms Optional. Function loading additional data input arms. Function should take a Study object as an argument, use the loadDataArm() to load data arms, and return the Study object with arms added.
 #'@export
-#'@return The Study object created and filled by allInteractiveMainFunction. 
+#'@return The Study object created and filled by allInteractiveMainFunction.
+#'@examples
+#'\dontrun{
+#'STUDY=allInteractiveMainFunction()
+#'} 
 ########################################################################
 allInteractiveMainFunction<-function(additionalArms=NULL){
 	

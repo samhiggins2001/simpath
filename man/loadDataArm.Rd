@@ -40,4 +40,13 @@ The arms list with the additional arm added.
 Connects data input arm to program, providing essential
 information and the main execution function.
 }
+\examples{
+study = getStudyObject(study.name="testDataSets",
+											 geneIdentifierType="HUGO")
+arms = slot(object=study, name="arms")
+arms = loadDataArm(description="Load drug screen data",
+	title="functional_drug_screen_summary",
+	mainFunction=packageDir:::RunDrugScreen,
+	arms=arms)
+}
 

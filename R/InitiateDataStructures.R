@@ -179,6 +179,14 @@ setClass("DataArm", representation(description="character",
 #'@param scriptFile A file providing the script where the functions implementing the data import arm can be found. Note: This allows that a script can be provied which contains the definition of the function provided for the mainFunction argument. Thus, this script will be executed before the mainFunction is called or referened. 
 #'@return The arms list with the additional arm added. 
 #'@export
+#'@examples
+#'study = getStudyObject(study.name="testDataSets", 
+#' 											 geneIdentifierType="HUGO")
+#'arms = slot(object=study, name="arms")
+#'arms = loadDataArm(description="Load drug screen data",
+#'	title="functional_drug_screen_summary", 
+#'	mainFunction=packageDir:::RunDrugScreen, 
+#'	arms=arms)
 loadDataArm<-function(mainFunction, 
 											arms, 
 											title, 

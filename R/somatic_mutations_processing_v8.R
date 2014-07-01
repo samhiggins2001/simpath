@@ -58,10 +58,10 @@ runSomaticMutationsProcessing<-function(settings, study){
 	}
 }
 
+
+#top20Hists(unfilteredData=STUDY@results$somatic_mutation_aberration_summary$original_data_matrix)
 top20Hists<-function(unfilteredData){
 
-	# 	unfilteredData=results$somatic_mutation_aberration_summary$unfiltered_data
-	
 	#get the top 20 mutations
 	print(colnames(unfilteredData))
 	stacked = unfilteredData[,c("pid","Hugo_Symbol")]
@@ -80,21 +80,34 @@ top20Hists<-function(unfilteredData){
 		curgenmat = unfilteredData[unfilteredData$Hugo_Symbol==cn,,drop=F]
 		postype2 = curgenmat
 		postype2$Variant_Classification<-as.factor(postype2$Variant_Classification)
-		bw = range(curgenmat$Start_Position)[2]-range(curgenmat$Start_Position)[1]
-		bw = bw/75
-
-		qp = qplot(Start_Position, 
-							 data = postype2,  
-							 binwidth=bw,
-							 fill = Variant_Classification, 
-							 main=paste("Positions and distributions of variants in gene", cn))
-		qp + theme(axis.text.x=element_text(angle=-90))
+		
+		minPos = min(postype2$Start_Position)
+		postype2$Start_Position = postype2$Start_Position - minPos
+		postype2$End_Position = postype2$End_Position - minPos
+		
+		bw = floor(max(postype2$Start_Position)/200)
+		
+		# 		qp = qplot(Start_Position, 
+		# 							 data = postype2,  
+		# 							 binwidth=bw,
+		# 							 fill = Variant_Classification, 
+		# 							 main=paste("Positions and distributions of variants in gene", cn))
+		# 		qp + theme(axis.text.x=element_text(angle=-90))
+		
+		qp=ggplot(data=postype2, aes(x=Start_Position, fill=Variant_Classification))+ 
+			geom_histogram(binwidth=bw)+
+			theme(axis.text.x=element_text(angle=-90))+
+			xlab("Nucleotide position in gene")+
+			ylab("Number of mutations at position in gene")+
+			ggtitle(paste("Nucleotide positions of variants in gene", cn,"across all members of cohort\nbin width:",bw))
+		
 		dir.create("./output/image_tmp/",recursive=T, showWarnings=F)
 		fnameOut = paste("./output/image_tmp/variant_postions_and_types_for_gene_",cn,".png",sep="")
 		ggsave(filename=fnameOut, plot=qp)
 	}
 	return(fnameOut)
 }
+
 
 # stackedGeneHist<-function(postype){
 # 	
@@ -233,38 +246,6 @@ stackedGeneBar1<-function(tcga_som){
 }#stackedGeneBar
 
 
-
-stackedGeneBar<-function(tcga_som, 
-												 title="Mutation types for the top 20 most mutated genes"){
-	ufilt = tcga_som
-	gs = summarize_by(col=tcga_som[,"Hugo_Symbol"], display=F)
-	top20 = head(gs[order(gs[,2],decreasing=T),],20)
-	gsnames = top20$types
-	
-	toprows = ufilt[ufilt$Hugo_Symbol%in%gsnames,]
-	
-	slimrows = toprows[,c("Hugo_Symbol","Variant_Classification")]
-	slimrows = merge(x=slimrows, y=top20, by.x="Hugo_Symbol", by.y="types")
-	slimrows = slimrows[order(slimrows$counts),]
-	slimrows$Hugo_Symbol<-factor(slimrows$Hugo_Symbol, levels=top20$types)
-	
-	colcols = getColorSequence(cnames=unique(slimrows$Variant_Classification), 
-														 fname="./reference_data/MAFcolorMatches.txt")
-	colnames = colors()[colcols]
-	names(colnames)<-names(colcols)
-	
-	p1 = ggplot(data=slimrows, aes(x=Hugo_Symbol, 
-																 fill=factor(Variant_Classification)))+
-		geom_bar(color="black")+
-		coord_flip()+
-		scale_fill_manual(values=colnames)+
-		theme_bw()+
-		theme(legend.title=element_blank())+
-		ggtitle(title)
-	
-	print(p1)
-}
-
 #remove_dbSNP
 #removes mutations with dbSNP records
 #allows output and user input
@@ -314,13 +295,13 @@ filterMutationType<-function(tcga_som, tracker, s){
 
 	#system('/usr/bin/afplay ./reference_data/Submarine.aiff')
 	print("Before removal of genes marked as \"UNKNOWN\"")
-	stackedGeneBar(tcga_som, title="Top mutations before any filtering ")
+	stackedGeneBar(tcga_som=tcga_som, title="Top mutations before any filtering")
 	tracker[["Before removal of UNKNOWN genes, distribution of mutation types in top 20 most mutated genes"]]=save.plot(pname="stackedGeneBarPreUnknownRemoval")
 	
 	tcga_som_no_unknown = tcga_som[tcga_som$Hugo_Symbol!="UNKNOWN",]
 	
 	print("After removal of genes marked as \"UNKNOWN\"")
-	stackedGeneBar(tcga_som_no_unknown,
+	stackedGeneBar(tcga_som=tcga_som_no_unknown,
 								 title="Top mutations after removal\nof genes marked \"UNKNOWN\"")#make another stacked gene bar after the "UNKNOWN" are removed
 	tracker[["After removal of UNKNOWN genes, distribution of mutation types in top 20 most mutated genes."]]=save.plot("stackedGeneBarPostUnknownRemoval")
 
@@ -664,7 +645,7 @@ processSomaticData<-function(study,
 	
 	
 	print("After all filtering steps")
-	stackedGeneBar(som_select,
+	stackedGeneBar(tcga_som=som_select,
 								 title="Top mutations after all filtering steps")
 	tracker[["After all filtering steps, distribution of mutation types in top 20 most mutated genes."]]=save.plot("stackedGeneBarPostUnknownRemoval")
 
