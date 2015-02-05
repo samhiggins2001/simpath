@@ -14,10 +14,9 @@ source("http://bioconductor.org/biocLite.R")
 
 biocLite()
 
-install.packages("packageDir_0.1.tar.gz", 
-                type = "source", 
-                dependencies=TRUE,
-                repos=biocinstallRepos()) 
+library("devtools")
+
+install_github(repo = "stochasticTreat/simpath")
 
 library(packageDir)
 
