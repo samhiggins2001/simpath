@@ -11,7 +11,7 @@ The tar.gz file contains the R package.
 To install, from the R command line run: 
 
 source("http://bioconductor.org/biocLite.R")
-
+biocLite()
 install.packages("packageDir_0.1.tar.gz",  
                 type = "source", 
                 dependencies=TRUE,
